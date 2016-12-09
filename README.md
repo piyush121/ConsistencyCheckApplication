@@ -10,7 +10,7 @@ Implement a consistency test for the key-value store we built in project 1. On t
 
 Note: Don't mix up exit code and stdout. For reference see this Wikipedia article and this Stack Overflow discussion.
 
-
+```
 Example invocation in Linux (test passes):
 $ ./consistency_test -server 192.168.1.5:9634
 $ echo $?
@@ -21,7 +21,7 @@ Example invocation in Linux (test fails):
 $ ./consistency_test -server 192.168.1.5:9634
 $ echo $?
 1
-
+```
 
 
 
