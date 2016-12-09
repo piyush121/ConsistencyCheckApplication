@@ -10,16 +10,18 @@ package App;
  */
 public class MyThread extends Thread{
 
-	int k;
-
-	public MyThread(int i) {
-		k = i;
+	int time;
+	int number;
+	public MyThread(TimeServer timeObject, int x) {
+		time = timeObject.getNextTime();
+		number = x;
 	}
 
 	@Override
 	public void run() {
 		// Your Code
-		System.out.println("Client no. " + k +" is running.");
+		Thread.currentThread().setName(String.valueOf(number));
+		System.out.println("Client no. " + Thread.currentThread().getName() +" is running.");
 		
 	}
 

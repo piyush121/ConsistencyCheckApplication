@@ -18,7 +18,8 @@ public class CheckServer {
 		// create 255 Thread using for loop
 		for (int x = 0; x < 256; x++) {
 			// Create Thread class
-			MyThread temp = new MyThread(x);
+			TimeServer timeObject = new TimeServer();
+			MyThread temp = new MyThread(timeObject, x);
 			temp.start();
 			try {
 				temp.join(10);
