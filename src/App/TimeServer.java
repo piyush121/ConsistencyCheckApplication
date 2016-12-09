@@ -1,7 +1,7 @@
 package App;
 
 public class TimeServer {
-	int count;
+	int count = 0;
 		public int getNextTime() {
 			return ++count;
 		}
