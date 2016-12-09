@@ -24,7 +24,9 @@ import App.Result;
 public class CheckServer {
 
 	/**
-	 * @param args
+	 * Class kvclient is used for creating an object for a client.
+	 * Using this object, command posted by the buggy server is read and it's result 
+	 * is then used to create a thread for the client.
 	 */
 	
 	public static class kvclient {
@@ -34,6 +36,10 @@ public class CheckServer {
 		private static TProtocol protocol;
 		private static KVStore.Client client;
 		
+		/**
+		 * produceOutput function reads command and returns it's output in the form 
+		 * of a String.
+		 */
 		public static String produceOutput(String[] command) {
 			
 			try {
@@ -48,7 +54,7 @@ public class CheckServer {
 				Result result = null;
 				switch (length) {
 				
-				// either get or delete
+				// get
 				case 4:
 					if (command[2].equals("-get")) {
 						result = client.kvget(command[3]);
@@ -61,7 +67,7 @@ public class CheckServer {
 						}
 					} 
 					break;
-				case 5: // set command sent.
+				case 5: // set
 					if (command[2].equals("-set")) {
 						result = client.kvset(command[3], command[4]);
 						if (result.getError() == ErrorCode.kSuccess) {
