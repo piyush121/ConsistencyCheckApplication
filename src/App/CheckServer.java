@@ -47,8 +47,8 @@ public class CheckServer {
 	public static void main(String[] args) {
 
 		try {
-			HOST = args[1].split(":")[0];
-			PORT = Integer.parseInt(args[1].split(":")[1]);
+			HOST = "localhost";
+			PORT = 5000;
 			transport = new TSocket(HOST, PORT, 5000);// Will timeout after
 														// 5 secs.
 			transport.open();
@@ -60,13 +60,10 @@ public class CheckServer {
 				// Create Thread class and start accumulating logs in the list.
 				TimeServer timeObject = new TimeServer();
 				KVStore.Client kvc_obj = new KVStore.Client(protocol);
-				MyThread temp = new MyThread(timeObject, kvc_obj, list, x);
-				temp.start();
-				temp.join(10);
+				MyThread client = new MyThread(timeObject, kvc_obj, list, x);
+				client.start();
 			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (TTransportException e) {
+		}  catch (TTransportException e) {
 			e.printStackTrace();
 		}
 	}
