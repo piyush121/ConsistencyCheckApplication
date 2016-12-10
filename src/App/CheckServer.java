@@ -12,6 +12,8 @@ import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.*;
+
 import App.ErrorCode;
 import App.KVStore;
 import App.Result;
@@ -22,94 +24,52 @@ import App.Result;
  *
  */
 public class CheckServer {
+	
+	private static String HOST = "localhost";
+	private static int PORT = 9091; // default
+	private static TTransport transport;
+	private static TProtocol protocol;
+	private static KVStore.Client client;
+	
+	/*HOST = command[1].split(":")[0];
+	PORT = Integer.parseInt(command[1].split(":")[1]);
+	transport = new TSocket(HOST, PORT, 5000);// Will timeout after
+												// 5 secs.
+	transport.open();
+	protocol = new TBinaryProtocol(transport);
+	client = new KVStore.Client(protocol);*/
 
 	/**
-	 * Class kvclient is used for creating an object for a client.
-	 * Using this object, command posted by the buggy server is read and it's result 
-	 * is then used to create a thread for the client.
+	 * Class kvclient is used for creating an object for a client. Using this
+	 * object, command posted by the buggy server is read and it's result is
+	 * then used to create a thread for the client.
 	 */
-	
-	public static class kvclient {
-		private static String HOST = "localhost";
-		private static int PORT = 9091; // default
-		private static TTransport transport;
-		private static TProtocol protocol;
-		private static KVStore.Client client;
-		
-		/**
-		 * produceOutput function reads command and returns it's output in the form 
-		 * of a String.
-		 */
-		public static String produceOutput(String[] command) {
-			
-			try {
-				HOST = command[1].split(":")[0];
-				PORT = Integer.parseInt(command[1].split(":")[1]);
-				transport = new TSocket(HOST, PORT, 5000);// Will timeout after 5 secs.
-				transport.open();
-				protocol = new TBinaryProtocol(transport);
-				client = new KVStore.Client(protocol);
 
-				int length = command.length;
-				Result result = null;
-				switch (length) {
-				
-				// get
-				case 4:
-					if (command[2].equals("-get")) {
-						result = client.kvget(command[3]);
-						if (result.getError() == ErrorCode.kSuccess) {
-							return result.toString();
-						} else if (result.getError() == ErrorCode.kKeyNotFound) {
-							return result.errortext;
-						} else {
-							return result.errortext;
-						}
-					} 
-					break;
-				case 5: // set
-					if (command[2].equals("-set")) {
-						result = client.kvset(command[3], command[4]);
-						if (result.getError() == ErrorCode.kSuccess) {
-							return result.toString();
-						} else {
-							return result.errortext;
-						}
-					}
-					break;
-				default:
-					return "Command does not exist or Wrong arguments passed.";
-				}
-
-			} catch (TTransportException ex) {
-				ex.printStackTrace();
-				return ex.toString();
-			} catch (TException tx) {
-				return tx.toString();
-			}
-			
-			return "";
-			
-		}
-		
-	}
-	
 	public static void main(String[] args) {
-
-		// create 255 Thread using for loop
-		for (int x = 0; x < 256; x++) {
-			// Create Thread class
-			TimeServer timeObject = new TimeServer();
-			kvclient kvc_obj = new kvclient();
-			MyThread temp = new MyThread(timeObject, kvc_obj.produceOutput(args), x);
-			temp.start();
-			try {
+		
+		try {
+			HOST = args[1].split(":")[0];
+			PORT = Integer.parseInt(args[1].split(":")[1]);
+			transport = new TSocket(HOST, PORT, 5000);// Will timeout after
+														// 5 secs.
+			transport.open();
+			protocol = new TBinaryProtocol(transport);
+			client = new KVStore.Client(protocol);
+			ArrayList<Command> list = new ArrayList<>();
+			// create 255 Thread using for loop
+			for (int x = 0; x < 256; x++) {
+				// Create Thread class
+				TimeServer timeObject = new TimeServer();
+				KVStore.Client kvc_obj = new KVStore.Client(protocol);;
+				MyThread temp = new MyThread(timeObject, kvc_obj, list, x);
+				temp.start();
 				temp.join(10);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
 			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (TTransportException e) {
+			e.printStackTrace();
 		}
-
 	}
-
 }
+
