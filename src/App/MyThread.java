@@ -32,6 +32,7 @@ public class MyThread extends Thread {
 	@Override
 	public void run() {
 		// Your Code
+		System.out.println("Client no. " + Thread.currentThread().getName() + " is running.");
 		Thread.currentThread().setName(String.valueOf(number));
 		Random rand = new Random();
 		String callType = "";
@@ -45,7 +46,6 @@ public class MyThread extends Thread {
 			int choose = rand.nextInt(2);
 			try {
 				startTime = TimeServer.getNextTime();
-
 				callType = choose == 0 ? "get" : "set";
 				if (callType.equals("get")) {
 					val = client.kvget("1").value;
@@ -65,8 +65,6 @@ public class MyThread extends Thread {
 			// execute set command.
 
 		}
-
-		System.out.println("Client no. " + Thread.currentThread().getName() + " is running.");
 
 	}
 

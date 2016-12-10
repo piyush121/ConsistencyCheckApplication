@@ -24,20 +24,19 @@ import App.Result;
  *
  */
 public class CheckServer {
-	
+
 	private static String HOST = "localhost";
 	private static int PORT = 9091; // default
 	private static TTransport transport;
 	private static TProtocol protocol;
 	private static KVStore.Client client;
-	
-	/*HOST = command[1].split(":")[0];
-	PORT = Integer.parseInt(command[1].split(":")[1]);
-	transport = new TSocket(HOST, PORT, 5000);// Will timeout after
-												// 5 secs.
-	transport.open();
-	protocol = new TBinaryProtocol(transport);
-	client = new KVStore.Client(protocol);*/
+
+	/*
+	 * HOST = command[1].split(":")[0]; PORT =
+	 * Integer.parseInt(command[1].split(":")[1]); transport = new TSocket(HOST,
+	 * PORT, 5000);// Will timeout after // 5 secs. transport.open(); protocol =
+	 * new TBinaryProtocol(transport); client = new KVStore.Client(protocol);
+	 */
 
 	/**
 	 * Class kvclient is used for creating an object for a client. Using this
@@ -46,7 +45,7 @@ public class CheckServer {
 	 */
 
 	public static void main(String[] args) {
-		
+
 		try {
 			HOST = args[1].split(":")[0];
 			PORT = Integer.parseInt(args[1].split(":")[1]);
@@ -58,9 +57,9 @@ public class CheckServer {
 			ArrayList<Command> list = new ArrayList<>();
 			// create 255 Thread using for loop
 			for (int x = 0; x < 256; x++) {
-				// Create Thread class
+				// Create Thread class and start accumulating logs in the list.
 				TimeServer timeObject = new TimeServer();
-				KVStore.Client kvc_obj = new KVStore.Client(protocol);;
+				KVStore.Client kvc_obj = new KVStore.Client(protocol);
 				MyThread temp = new MyThread(timeObject, kvc_obj, list, x);
 				temp.start();
 				temp.join(10);
@@ -72,4 +71,3 @@ public class CheckServer {
 		}
 	}
 }
-
