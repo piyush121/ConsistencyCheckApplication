@@ -44,10 +44,15 @@ public class CheckServer {
 	 * then used to create a thread for the client.
 	 */
 
-	public static void addTimeEdge(Map<Command, ArrayList<Command>> adjList, ArrayList<Command> list) {
+	public static void addTimeEdge(Map<Command, ArrayList<Command>> adjList, HashMap<String, Command> trackWritesMap,
+			ArrayList<Command> list) {
 		ArrayList<Command> incStartTimeCommand = new ArrayList<>();
 		ArrayList<Command> decEndTimeCommand = new ArrayList<>();
-		HashMap<Integer, Command> map = new HashMap<>();
+		// Tracking all the writes
+		for (Command cmd : list) {
+			if (cmd.requestType.equals("kvset"))
+				trackWritesMap.put(cmd.value, cmd);
+		}
 		// Sort by Increasing start time.
 		Collections.sort(list, new Comparator<Command>() {
 			public int compare(Command cmd1, Command cmd2) {
@@ -77,6 +82,32 @@ public class CheckServer {
 
 		}
 
+	}
+
+	public static void addDataEdge(Map<Command, ArrayList<Command>> adjList, HashMap<String, Command> trackWritesMap,
+		ArrayList<Command> list) {
+		for (Command cmd : list) {
+			if (cmd.requestType.equals("kvget"))
+				adjList.get(trackWritesMap.get(cmd.value)).add(cmd); // add data edge in the main adjacency list.
+		}
+	}
+	
+	public static void addHybridEdge(Map<Command, ArrayList<Command>> adjList, HashMap<String, Command> trackWritesMap,
+			ArrayList<Command> list) {
+		for (Command cmd1 : list) {
+			if (cmd1.value.equals("kvset")) {
+				for (Command cmd2 : list) {
+					if (cmd2.value.equals("kvget") && pathExist(cmd1, cmd2)) {
+						Command temp = trackWritesMap.get(cmd2.value);
+						adjList.get(cmd1).add(temp);
+					}
+				}
+			}
+		}
+	}
+	
+	public static boolean pathExist(Command cmd1, Command cmd2){
+		
 	}
 
 	public static void main(String[] args) {
