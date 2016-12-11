@@ -117,11 +117,14 @@ public class CheckServer {
 			Command cmd = que.poll();
 			if (visited.contains(cmd))
 				return false;
-			if(cmd.equals(cmd2))
-				return true;
+			
 			visited.add(cmd);
-			for (Command cmd3 : adjList.get(cmd))
+			for (Command cmd3 : adjList.get(cmd)) {
+				if (cmd.equals(cmd2))
+					return true;
 				que.add(cmd3);
+				
+			}
 		}
 
 		return false;
