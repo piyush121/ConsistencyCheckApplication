@@ -97,7 +97,7 @@ public class CheckServer {
 		for (Command cmd1 : list) {
 			if (cmd1.value.equals("kvset")) {
 				for (Command cmd2 : list) {
-					if (cmd2.value.equals("kvget") && pathExist(cmd1, cmd2)) {
+					if (cmd2.value.equals("kvget") && pathExist(cmd1, cmd2, adjList)) {
 						Command temp = trackWritesMap.get(cmd2.value);
 						adjList.get(cmd1).add(temp);
 					}
@@ -106,8 +106,23 @@ public class CheckServer {
 		}
 	}
 	
-	public static boolean pathExist(Command cmd1, Command cmd2){
+	public static boolean pathExist(Command cmd1, Command cmd2, Map<Command, ArrayList<Command>> adjList){
+		if(cmd1 == null || cmd2 == null) //  BFS implementation.
+			return false;
+		HashSet<Command> visited = new HashSet<>();
+		Queue<Command> que = new LinkedList<>();
+		que.add(cmd1);
 		
+		while(!que.isEmpty()) {
+			Command cmd = que.poll();
+			if(visited.contains(cmd))
+				return true;
+			visited.add(cmd);
+			for(Command cmd3 : adjList.get(cmd))
+				que.add(cmd3);
+		}
+		
+		return false;
 	}
 
 	public static void main(String[] args) {
