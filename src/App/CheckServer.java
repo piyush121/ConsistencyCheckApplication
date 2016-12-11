@@ -44,6 +44,41 @@ public class CheckServer {
 	 * then used to create a thread for the client.
 	 */
 
+	public static void addTimeEdge(Map<Command, ArrayList<Command>> adjList, ArrayList<Command> list) {
+		ArrayList<Command> incStartTimeCommand = new ArrayList<>();
+		ArrayList<Command> decEndTimeCommand = new ArrayList<>();
+		HashMap<Integer, Command> map = new HashMap<>();
+		// Sort by Increasing start time.
+		Collections.sort(list, new Comparator<Command>() {
+			public int compare(Command cmd1, Command cmd2) {
+				return cmd1.startTime - cmd2.startTime;
+			}
+		});
+		incStartTimeCommand.addAll(list);
+		// Sort by decreasing end time
+		Collections.sort(list, new Comparator<Command>() {
+			public int compare(Command cmd1, Command cmd2) {
+				return cmd2.endTime - cmd1.endTime;
+			}
+		});
+		decEndTimeCommand.addAll(list);
+
+		for (Command cmd1 : incStartTimeCommand) {
+			int time = -1;
+			for (Command cmd2 : decEndTimeCommand) {
+				if (cmd2.startTime > cmd1.endTime) {
+					if (time < cmd2.endTime) {
+						adjList.get(cmd2).add(cmd1);
+						time = Math.max(time, cmd2.startTime);
+					} else
+						break;
+				}
+			}
+
+		}
+
+	}
+
 	public static void main(String[] args) {
 
 		try {
@@ -63,7 +98,7 @@ public class CheckServer {
 				MyThread client = new MyThread(timeObject, kvc_obj, list, x);
 				client.start();
 			}
-		}  catch (TTransportException e) {
+		} catch (TTransportException e) {
 			e.printStackTrace();
 		}
 	}
