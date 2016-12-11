@@ -106,22 +106,24 @@ public class CheckServer {
 		}
 	}
 	
-	public static boolean pathExist(Command cmd1, Command cmd2, Map<Command, ArrayList<Command>> adjList){
-		if(cmd1 == null || cmd2 == null) //  BFS implementation.
+	public static boolean pathExist(Command cmd1, Command cmd2, Map<Command, ArrayList<Command>> adjList) {
+		if (cmd1 == null || cmd2 == null) // BFS implementation.
 			return false;
 		HashSet<Command> visited = new HashSet<>();
 		Queue<Command> que = new LinkedList<>();
 		que.add(cmd1);
-		
-		while(!que.isEmpty()) {
+
+		while (!que.isEmpty()) {
 			Command cmd = que.poll();
-			if(visited.contains(cmd))
+			if (visited.contains(cmd))
+				return false;
+			if(cmd.equals(cmd2))
 				return true;
 			visited.add(cmd);
-			for(Command cmd3 : adjList.get(cmd))
+			for (Command cmd3 : adjList.get(cmd))
 				que.add(cmd3);
 		}
-		
+
 		return false;
 	}
 
