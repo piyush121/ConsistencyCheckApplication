@@ -126,6 +126,24 @@ public class CheckServer {
 
 		return false;
 	}
+	
+	public static boolean containsCycle(Map<Command, ArrayList<Command>> adjList) {
+		for (Command node : adjList.keySet()) {
+	        final ArrayList<Command> directNeighbors = adjList.get(node);
+	        for (Command directNeighbor : directNeighbors) {
+	        	ArrayList<Command> next = adjList.get(directNeighbor);
+	            while (next != null) {
+	                for (Command n : next) {
+	                	next = adjList.get(n);
+	                    if (next != null && (next.contains(n) || next.contains(node))) {
+	                        return true;
+	                    }
+	                }
+	            }
+	        }
+	    }
+	    return false;
+	}
 
 	public static void main(String[] args) {
 
