@@ -58,6 +58,7 @@ public class MyThread extends Thread {
 					cmd = new Command(startTime, endTime, "set", "1", randomValue);
 				}
 				list.add(cmd);
+				System.out.println(list.get(0).startTime);
 			} catch (TException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

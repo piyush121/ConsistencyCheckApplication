@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.TimeoutException;
 
 import App.ErrorCode;
 import App.KVStore;
@@ -46,6 +47,7 @@ public class CheckServer {
 
 	public static void addTimeEdge(Map<Command, ArrayList<Command>> adjList, HashMap<String, Command> trackWritesMap,
 			ArrayList<Command> list) {
+		System.out.println("Adding Time Edge");
 		ArrayList<Command> incStartTimeCommand = new ArrayList<>();
 		ArrayList<Command> decEndTimeCommand = new ArrayList<>();
 		// Tracking all the writes
@@ -86,6 +88,7 @@ public class CheckServer {
 
 	public static void addDataEdge(Map<Command, ArrayList<Command>> adjList, HashMap<String, Command> trackWritesMap,
 		ArrayList<Command> list) {
+		System.out.println("Adding Data Edge");
 		for (Command cmd : list) {
 			if (cmd.requestType.equals("kvget"))
 				adjList.get(trackWritesMap.get(cmd.value)).add(cmd); // add data edge in the main adjacency list.
@@ -94,6 +97,7 @@ public class CheckServer {
 	
 	public static void addHybridEdge(Map<Command, ArrayList<Command>> adjList, HashMap<String, Command> trackWritesMap,
 			ArrayList<Command> list) {
+		System.out.println("Adding Hybrid Edge");
 		for (Command cmd1 : list) {
 			if (cmd1.value.equals("kvset")) {
 				for (Command cmd2 : list) {
@@ -132,43 +136,68 @@ public class CheckServer {
 	
 	public static boolean containsCycle(Map<Command, ArrayList<Command>> adjList) {
 		for (Command node : adjList.keySet()) {
-	        final ArrayList<Command> directNeighbors = adjList.get(node);
-	        for (Command directNeighbor : directNeighbors) {
-	        	ArrayList<Command> next = adjList.get(directNeighbor);
-	            while (next != null) {
-	                for (Command n : next) {
-	                	next = adjList.get(n);
-	                    if (next != null && (next.contains(n) || next.contains(node))) {
-	                        return true;
-	                    }
-	                }
-	            }
-	        }
-	    }
-	    return false;
+			for (Command node1 : adjList.get(node))
+				if (dfs(node, node1, adjList, new HashSet<Command>()))
+					return true;
+		}
+		return false;
+	}
+
+	public static boolean dfs(Command target, Command node, Map<Command, ArrayList<Command>> adjList,
+			HashSet<Command> visited) {
+		if (visited.contains(node))
+			return true;
+		visited.add(node);
+		for (Command next : adjList.get(node)) {
+			if (target.equals(next))
+				return true;
+			if (dfs(target, next, adjList, visited))
+				return true;
+		}
+		return false;
 	}
 
 	public static void main(String[] args) {
-
+		ArrayList<Command> list = new ArrayList<>();
+		Map<Command, ArrayList<Command>> adjList = new HashMap<>();
 		try {
 			HOST = "localhost";
 			PORT = 5000;
-			transport = new TSocket(HOST, PORT, 5000);// Will timeout after
-														// 5 secs.
-			transport.open();
-			protocol = new TBinaryProtocol(transport);
+			//transport = new TSocket(HOST, PORT, 5000);// Will timeout after 5 secs.
+			//transport.open();
+			//protocol = new TBinaryProtocol(transport);
 			client = new KVStore.Client(protocol);
-			ArrayList<Command> list = new ArrayList<>();
+			
 			// create 255 Thread using for loop
-			for (int x = 0; x < 256; x++) {
+			for (int x = 0; x < 20; x++) {
 				// Create Thread class and start accumulating logs in the list.
 				TimeServer timeObject = new TimeServer();
+				transport = new TSocket(HOST, PORT, 5000);// Will timeout after 5 secs.
+				transport.open();
+				protocol = new TBinaryProtocol(transport);
 				KVStore.Client kvc_obj = new KVStore.Client(protocol);
 				MyThread client = new MyThread(timeObject, kvc_obj, list, x);
 				client.start();
+				
 			}
-		} catch (TTransportException e) {
+		}
+		catch (TTransportException e) {
 			e.printStackTrace();
 		}
+		HashMap<String, Command> trackWritesMap = new HashMap<>();
+		System.out.println("Logs: "+list.size());
+		addTimeEdge(adjList,trackWritesMap , list);
+		addDataEdge(adjList, trackWritesMap, list);
+		addHybridEdge(adjList, trackWritesMap, list);
+		System.out.println("Detecting cycle");
+		if(containsCycle(adjList)) {
+			System.out.println("cycle found");
+			System.exit(1);
+		}
+		else {
+			System.out.println("cycle not found");
+			System.exit(0);
+		}
+
 	}
 }
