@@ -164,51 +164,38 @@ public class CheckServer {
 		
 		List<Command> list = Collections.synchronizedList(new ArrayList<>());
 		Map<Command, ArrayList<Command>> adjList = new HashMap<>();
-		try {
-			HOST = "localhost";
-			PORT = 5000;
-			//transport = new TSocket(HOST, PORT, 5000);// Will timeout after 5 secs.
-			//transport.open();
-			//protocol = new TBinaryProtocol(transport);
-			client = new KVStore.Client(protocol);
-			
-			// create 255 Thread using for loop
-			for (int x = 0; x < 20; x++) {
-				// Create Thread class and start accumulating logs in the list.
-				TimeServer timeObject = new TimeServer();
-				transport = new TSocket(HOST, PORT, 15000);
-				transport.open();
-				protocol = new TBinaryProtocol(transport);
-				KVStore.Client kvc_obj = new KVStore.Client(protocol);
-				MyThread client = new MyThread(timeObject, kvc_obj, list, x);
-				client.start();
-				
-			}
+		// transport = new TSocket(HOST, PORT, 5000);// Will timeout after 5
+		// secs.
+		// transport.open();
+		// protocol = new TBinaryProtocol(transport);
+		client = new KVStore.Client(protocol);
+
+		// create 255 Thread using for loop
+		for (int x = 0; x < 20; x++) {
+			// Create Thread class and start accumulating logs in the list.
+
+			MyThread client = new MyThread(list, "localhost", 5000, x);
+			client.start();
 		}
-		catch (TTransportException e) {
-			e.printStackTrace();
-		}
-		
+
 		try {
-			Thread.sleep(10000);
+			Thread.sleep(50000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		HashMap<String, Command> trackWritesMap = new HashMap<>();
-		System.out.println("Logs: "+list.size());
-		addTimeEdge(adjList,trackWritesMap , list);
+		System.out.println("Logs: " + list.size());
+		addTimeEdge(adjList, trackWritesMap, list);
 		addDataEdge(adjList, trackWritesMap, list);
 		addHybridEdge(adjList, trackWritesMap, list);
 		System.out.println("Detecting cycle");
-		if(containsCycle(adjList)) {
+		if (containsCycle(adjList)) {
 			System.out.println("cycle found");
 			System.exit(1);
-		}
-		else {
+		} else {
 			System.out.println("cycle not found");
 			System.exit(0);
 		}
-
 	}
 }
