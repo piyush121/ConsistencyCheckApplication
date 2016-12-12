@@ -183,7 +183,7 @@ public class CheckServer {
 		// create 255 Thread using for loop
 		for (int x = 0; x < 20; x++) {
 			// Create Thread class and start accumulating logs in the list.
-			MyThread thread = new MyThread(list, "localhost", 5000, x);
+			MyThread thread = new MyThread(list, "localhost", 5000, x + 1);
 			thread.start();
 		}
 
@@ -199,8 +199,8 @@ public class CheckServer {
 		addDataEdge(adjList, trackWritesMap, list);
 		addHybridEdge(adjList, trackWritesMap, list);
 		
-		for(Command cmd : adjList.keySet())
-			System.out.println("Start Time: " + cmd.startTime +" End Time: "+cmd.endTime+" Request Type: "+cmd.requestType+" Value: "+cmd.value);
+	//	for(Command cmd : adjList.keySet())
+	//		System.out.println("Start Time: " + cmd.startTime +" End Time: "+cmd.endTime+" Request Type: "+cmd.requestType+" Value: "+cmd.value);
 		
 		System.out.println("Detecting cycle");
 		if (containsCycle(adjList)) {

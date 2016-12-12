@@ -66,12 +66,12 @@ public class MyThread extends Thread {
 				if (callType.equals("get")) {
 					val = client.kvget("1").value;
 					endTime = TimeServer.getNextTime();
-					cmd = new Command(startTime, endTime, "get", "1", val);
+					cmd = new Command(startTime, endTime, "kvget", "1", val);
 				} else {
-					randomValue = String.valueOf(rand.nextInt(500));
+					randomValue = String.valueOf(rand.nextInt(number * 10) + (number * 10 + 100));
 					val = client.kvset("1", randomValue).value;
 					endTime = TimeServer.getNextTime();
-					cmd = new Command(startTime, endTime, "set", "1", randomValue);
+					cmd = new Command(startTime, endTime, "kvset", "1", randomValue);
 				}			
 				//System.out.println("Loop " + i + " Thread: " + Thread.currentThread().getName());
 				list.add(cmd);
@@ -80,7 +80,6 @@ public class MyThread extends Thread {
 				System.out.println("TException found.");
 				e.printStackTrace();
 			}
-
 		}
 		transport.close();
 	}
