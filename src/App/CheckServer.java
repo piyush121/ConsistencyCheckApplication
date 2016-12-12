@@ -172,7 +172,7 @@ public class CheckServer {
 			for (int x = 0; x < 20; x++) {
 				// Create Thread class and start accumulating logs in the list.
 				TimeServer timeObject = new TimeServer();
-				transport = new TSocket(HOST, PORT, 5000);// Will timeout after 5 secs.
+				transport = new TSocket(HOST, PORT, 15000);// Will timeout after 5 secs.
 				transport.open();
 				protocol = new TBinaryProtocol(transport);
 				KVStore.Client kvc_obj = new KVStore.Client(protocol);
@@ -182,6 +182,13 @@ public class CheckServer {
 			}
 		}
 		catch (TTransportException e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		HashMap<String, Command> trackWritesMap = new HashMap<>();
