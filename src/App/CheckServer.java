@@ -46,10 +46,12 @@ public class CheckServer {
 	 */
 
 	public static void addTimeEdge(Map<Command, ArrayList<Command>> adjList, HashMap<String, Command> trackWritesMap,
-			ArrayList<Command> list) {
+			List<Command> list) {
+		
 		System.out.println("Adding Time Edge");
 		ArrayList<Command> incStartTimeCommand = new ArrayList<>();
 		ArrayList<Command> decEndTimeCommand = new ArrayList<>();
+		
 		// Tracking all the writes
 		for (Command cmd : list) {
 			if (cmd.requestType.equals("kvset"))
@@ -88,7 +90,7 @@ public class CheckServer {
 	}
 
 	public static void addDataEdge(Map<Command, ArrayList<Command>> adjList, HashMap<String, Command> trackWritesMap,
-		ArrayList<Command> list) {
+			List<Command> list) {
 		System.out.println("Adding Data Edge");
 		for (Command cmd : list) {
 			if (cmd.requestType.equals("kvget"))
@@ -97,7 +99,7 @@ public class CheckServer {
 	}
 	
 	public static void addHybridEdge(Map<Command, ArrayList<Command>> adjList, HashMap<String, Command> trackWritesMap,
-			ArrayList<Command> list) {
+			List<Command> list) {
 		System.out.println("Adding Hybrid Edge");
 		for (Command cmd1 : list) {
 			if (cmd1.value.equals("kvset")) {
@@ -159,7 +161,8 @@ public class CheckServer {
 	}
 
 	public static void main(String[] args) {
-		ArrayList<Command> list = new ArrayList<>();
+		
+		List<Command> list = Collections.synchronizedList(new ArrayList<>());
 		Map<Command, ArrayList<Command>> adjList = new HashMap<>();
 		try {
 			HOST = "localhost";
@@ -173,7 +176,7 @@ public class CheckServer {
 			for (int x = 0; x < 20; x++) {
 				// Create Thread class and start accumulating logs in the list.
 				TimeServer timeObject = new TimeServer();
-				transport = new TSocket(HOST, PORT, 15000);// Will timeout after 5 secs.
+				transport = new TSocket(HOST, PORT, 15000);
 				transport.open();
 				protocol = new TBinaryProtocol(transport);
 				KVStore.Client kvc_obj = new KVStore.Client(protocol);

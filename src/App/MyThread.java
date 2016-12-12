@@ -4,6 +4,7 @@
 package App;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import org.apache.thrift.TException;
@@ -18,11 +19,11 @@ public class MyThread extends Thread {
 	TimeServer timeObject;
 	int number;
 	KVStore.Client client;
-	ArrayList<Command> list;
+	List<Command> list;
 	String HOST;
 	int PORT; // default
 
-	public MyThread(TimeServer timeObject, KVStore.Client client, ArrayList<Command> list, int x) {
+	public MyThread(TimeServer timeObject, KVStore.Client client, List<Command> list, int x) {
 		this.timeObject = timeObject;
 		this.number = x;
 		this.client = client;
@@ -43,6 +44,7 @@ public class MyThread extends Thread {
 		int endTime = 0;
 		for (int i = 0; i < 20; i++) {
 			// execute command randomly.
+			System.out.println("Loop " + i);
 			int choose = rand.nextInt(2);
 			try {
 				startTime = TimeServer.getNextTime();
@@ -56,14 +58,13 @@ public class MyThread extends Thread {
 					val = client.kvset("1", randomValue).value;
 					endTime = TimeServer.getNextTime();
 					cmd = new Command(startTime, endTime, "set", "1", randomValue);
-				}
+				}			
 				list.add(cmd);
-				
 			} catch (TException e) {
 				// TODO Auto-generated catch block
+				System.out.println("TException found.");
 				e.printStackTrace();
 			}
-			// execute set command.
 
 		}
 		System.out.println(list.get(1).endTime);
