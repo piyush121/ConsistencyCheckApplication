@@ -28,9 +28,6 @@ public class CheckServer {
 
 	private static String HOST = "localhost";
 	private static int PORT = 9091; // default
-	private static TTransport transport;
-	private static TProtocol protocol;
-	private static KVStore.Client client;
 
 	/*
 	 * HOST = command[1].split(":")[0]; PORT =
@@ -164,31 +161,47 @@ public class CheckServer {
 		
 		List<Command> list = Collections.synchronizedList(new ArrayList<>());
 		Map<Command, ArrayList<Command>> adjList = new HashMap<>();
-		// transport = new TSocket(HOST, PORT, 5000);// Will timeout after 5
-		// secs.
-		// transport.open();
-		// protocol = new TBinaryProtocol(transport);
-		client = new KVStore.Client(protocol);
-
+		
+		HOST = "localhost";
+		PORT = 5000;
+		TTransport transport = new TSocket(HOST, PORT, 15000);
+		try {
+			transport.open();
+		} catch (TTransportException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		TProtocol protocol = new TBinaryProtocol(transport);
+		KVStore.Client client = new KVStore.Client(protocol);
+		try {
+			client.kvset("1", "-1");// Adding default value;
+		} catch (TException e1) {
+			e1.printStackTrace();
+		} 
+		transport.close();
+		
 		// create 255 Thread using for loop
 		for (int x = 0; x < 20; x++) {
 			// Create Thread class and start accumulating logs in the list.
-
-			MyThread client = new MyThread(list, "localhost", 5000, x);
-			client.start();
+			MyThread thread = new MyThread(list, "localhost", 5000, x);
+			thread.start();
 		}
 
 		try {
-			Thread.sleep(50000);
+			Thread.sleep(10000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		HashMap<String, Command> trackWritesMap = new HashMap<>();
 		System.out.println("Logs: " + list.size());
+
 		addTimeEdge(adjList, trackWritesMap, list);
 		addDataEdge(adjList, trackWritesMap, list);
 		addHybridEdge(adjList, trackWritesMap, list);
+		
+		for(Command cmd : adjList.keySet())
+			System.out.println("Start Time: " + cmd.startTime +" End Time"+cmd.endTime+" Value: "+cmd.value);
+		
 		System.out.println("Detecting cycle");
 		if (containsCycle(adjList)) {
 			System.out.println("cycle found");

@@ -10,7 +10,6 @@ import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -41,7 +40,7 @@ public class MyThread extends Thread {
 		Thread.currentThread().setName(String.valueOf(number));
 		HOST = "localhost";
 		PORT = 5000;
-		TTransport transport = new TSocket(HOST, PORT, 150000);
+		TTransport transport = new TSocket(HOST, PORT, 15000);
 		try {
 			transport.open();
 		} catch (TTransportException e1) {
@@ -60,7 +59,6 @@ public class MyThread extends Thread {
 		int endTime = 0;
 		for (int i = 0; i < 20; i++) {
 			// execute command randomly.
-			
 			int choose = rand.nextInt(2);
 			try {
 				startTime = TimeServer.getNextTime();
@@ -75,7 +73,7 @@ public class MyThread extends Thread {
 					endTime = TimeServer.getNextTime();
 					cmd = new Command(startTime, endTime, "set", "1", randomValue);
 				}			
-				System.out.println("Loop " + i + " Thread: " + Thread.currentThread().getName());
+				//System.out.println("Loop " + i + " Thread: " + Thread.currentThread().getName());
 				list.add(cmd);
 			} catch (TException e) {
 				// TODO Auto-generated catch block
@@ -85,7 +83,6 @@ public class MyThread extends Thread {
 
 		}
 		transport.close();
-		System.out.println(list.get(1).endTime);
 	}
 
 }
