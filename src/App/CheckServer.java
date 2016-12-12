@@ -92,7 +92,7 @@ public class CheckServer {
 		for (Command cmd : list) {
 			if (cmd.requestType.equals("kvget")) {
 				Command writer = trackWritesMap.get(cmd.value);
-				System.out.println(cmd.value);
+				//System.out.println(cmd.value);
 				adjList.get(writer).add(cmd); // add data edge in the main adjacency list.
 			}
 		}
