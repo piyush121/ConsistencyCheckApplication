@@ -28,10 +28,7 @@ public class Command {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + endTime;
-		result = prime * result + ((key == null) ? 0 : key.hashCode());
-		result = prime * result + ((requestType == null) ? 0 : requestType.hashCode());
 		result = prime * result + startTime;
-		result = prime * result + ((value == null) ? 0 : value.hashCode());
 		return result;
 	}
 

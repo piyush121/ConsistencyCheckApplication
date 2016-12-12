@@ -42,7 +42,7 @@ public class CheckServer {
 	 * then used to create a thread for the client.
 	 */
 
-	public static void addTimeEdge(Map<Command, ArrayList<Command>> adjList, HashMap<String, Command> trackWritesMap,
+	public static void addTimeEdge(Map<Command, ArrayList<Command>> adjList, Map<String, Command> trackWritesMap,
 			List<Command> list) {
 		
 		System.out.println("Adding Time Edge");
@@ -52,8 +52,8 @@ public class CheckServer {
 		// Tracking all the writes
 		for (Command cmd : list) {
 			if (cmd.requestType.equals("kvset"))
-				trackWritesMap.put(cmd.value, cmd);
-			adjList.put(cmd, new ArrayList<>()); // add all vertex to the adjacency list!
+				trackWritesMap.put(cmd.value, cmd); // Who wrote this value.
+			adjList.put(cmd, new ArrayList<Command>()); // add all vertex to the adjacency list!
 		}
 		// Sort by Increasing start time.
 		Collections.sort(list, new Comparator<Command>() {
@@ -86,16 +86,19 @@ public class CheckServer {
 
 	}
 
-	public static void addDataEdge(Map<Command, ArrayList<Command>> adjList, HashMap<String, Command> trackWritesMap,
+	public static void addDataEdge(Map<Command, ArrayList<Command>> adjList, Map<String, Command> trackWritesMap,
 			List<Command> list) {
 		System.out.println("Adding Data Edge");
 		for (Command cmd : list) {
-			if (cmd.requestType.equals("kvget"))
-				adjList.get(trackWritesMap.get(cmd.value)).add(cmd); // add data edge in the main adjacency list.
+			if (cmd.requestType.equals("kvget")) {
+				Command writer = trackWritesMap.get(cmd.value);
+				System.out.println(cmd.value);
+				adjList.get(writer).add(cmd); // add data edge in the main adjacency list.
+			}
 		}
 	}
 	
-	public static void addHybridEdge(Map<Command, ArrayList<Command>> adjList, HashMap<String, Command> trackWritesMap,
+	public static void addHybridEdge(Map<Command, ArrayList<Command>> adjList, Map<String, Command> trackWritesMap,
 			List<Command> list) {
 		System.out.println("Adding Hybrid Edge");
 		for (Command cmd1 : list) {
@@ -161,7 +164,7 @@ public class CheckServer {
 		
 		List<Command> list = Collections.synchronizedList(new ArrayList<>());
 		Map<Command, ArrayList<Command>> adjList = new HashMap<>();
-		
+		Map<String, Command> trackWritesMap = new HashMap<>();
 		HOST = "localhost";
 		PORT = 5000;
 		TTransport transport = new TSocket(HOST, PORT, 15000);
@@ -175,6 +178,9 @@ public class CheckServer {
 		KVStore.Client client = new KVStore.Client(protocol);
 		try {
 			client.kvset("1", "-1");// Adding default value;
+			Command obj = new Command(-2, -1, "kvset", "1", "-1");
+			adjList.put(obj, new ArrayList<>());
+			trackWritesMap.put("-1", obj);
 		} catch (TException e1) {
 			e1.printStackTrace();
 		} 
@@ -192,7 +198,7 @@ public class CheckServer {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		HashMap<String, Command> trackWritesMap = new HashMap<>();
+		
 		System.out.println("Logs: " + list.size());
 
 		addTimeEdge(adjList, trackWritesMap, list);
@@ -200,7 +206,7 @@ public class CheckServer {
 		addHybridEdge(adjList, trackWritesMap, list);
 		
 	//	for(Command cmd : adjList.keySet())
-	//		System.out.println("Start Time: " + cmd.startTime +" End Time: "+cmd.endTime+" Request Type: "+cmd.requestType+" Value: "+cmd.value);
+	//		System.out.println("Start Time: " + cmd.startTime +" End Time: "+cmd.endTime+" NeighborCount: "+adjList.get(cmd).size()+" Value: "+cmd.value);
 		
 		System.out.println("Detecting cycle");
 		if (containsCycle(adjList)) {
