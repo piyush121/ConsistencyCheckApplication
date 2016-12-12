@@ -23,14 +23,6 @@ public class Command {
 
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + endTime;
-		result = prime * result + startTime;
-		return result;
-	}
 
 	@Override
 	public boolean equals(Object obj) {

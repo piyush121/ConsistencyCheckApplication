@@ -21,7 +21,6 @@ import java.util.Random;
  */
 public class MyThread extends Thread {
 	int number;
-	KVStore.Client client;
 	List<Command> list;
 	String HOST;
 	int PORT; // default
@@ -68,7 +67,7 @@ public class MyThread extends Thread {
 					endTime = TimeServer.getNextTime();
 					cmd = new Command(startTime, endTime, "kvget", "1", val);
 				} else {
-					randomValue = String.valueOf(rand.nextInt(number * 10) + (number * 10 + 100));
+					randomValue = String.valueOf(number * 100 + i);
 					val = client.kvset("1", randomValue).value;
 					endTime = TimeServer.getNextTime();
 					cmd = new Command(startTime, endTime, "kvset", "1", randomValue);

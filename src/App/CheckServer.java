@@ -73,11 +73,11 @@ public class CheckServer {
 		for (Command cmd1 : incStartTimeCommand) {
 			int time = Integer.MIN_VALUE;
 			for (Command cmd2 : decEndTimeCommand) {
-				if (cmd2.startTime > cmd1.endTime) {
+				if (cmd2.endTime < cmd1.startTime) {
 					if (time < cmd2.endTime) {
 						adjList.get(cmd2).add(cmd1);
 						time = Math.max(time, cmd2.startTime);
-						
+
 					} else
 						break;
 				}
@@ -140,27 +140,29 @@ public class CheckServer {
 	
 	public static boolean containsCycle(Map<Command, ArrayList<Command>> adjList) {
 		for (Command node : adjList.keySet()) {
-			for (Command node1 : adjList.get(node))
-				if (dfs(node, node1, adjList, new HashSet<Command>()))
+				if (containsCycle(adjList, new HashSet<Command>(),new HashSet<Command>(), node))
 					return true;
 		}
 		return false;
 	}
 
-	public static boolean dfs(Command target, Command node, Map<Command, ArrayList<Command>> adjList,
-			HashSet<Command> visited) {
-		if (visited.contains(node)) {
-			return true; // Different cycle found.
-		}
-		visited.add(node);
-		for (Command next : adjList.get(node)) {
-			if (target.equals(next))
-				return true;
-			if (dfs(target, next, adjList, visited))
-				return true;
-		}
-		return false;
-	}
+	public static boolean containsCycle(Map<Command, ArrayList<Command>> adjList,Set<Command> visited, Set<Command> stacked, Command startNode) {
+    	
+    	visited.add(startNode);
+    	stacked.add(startNode);
+
+        for (Command next : adjList.get(startNode)) {
+            if(!visited.contains(next)) {
+            	containsCycle(adjList, visited, stacked, next);
+            } else if (stacked.contains(next)) {
+                return true;
+            }
+        }
+
+        stacked.remove(startNode);
+        return false;
+        
+    }
 
 	public static void main(String[] args) throws InterruptedException {
 		
@@ -180,7 +182,7 @@ public class CheckServer {
 		KVStore.Client client = new KVStore.Client(protocol);
 		try {
 			client.kvset("1", "-1");// Adding default value;
-			Command obj = new Command(-2, -1, "kvset", "1", "-1");
+			Command obj = new Command(0, 1, "kvset", "1", "-1");
 			adjList.put(obj, new ArrayList<>());
 			trackWritesMap.put("-1", obj);
 		} catch (TException e1) {
@@ -190,12 +192,12 @@ public class CheckServer {
 		
 		// create 255 Thread using for loop
 		Thread[] clients = new Thread[20];
-		for (int x = 0; x < 20; x++) {
+		for (int x = 0; x < clients.length; x++) {
 			// Create Thread class and start accumulating logs in the list.
 			clients[x] = new MyThread(list, "localhost", 5000, x + 1);
 			clients[x].start();
 		}
-		for (int x = 0; x < 20; x++) {
+		for (int x = 0; x < clients.length; x++) {
 			clients[x].join();
 		}
 		
