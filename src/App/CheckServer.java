@@ -71,12 +71,13 @@ public class CheckServer {
 		decEndTimeCommand.addAll(list);
 
 		for (Command cmd1 : incStartTimeCommand) {
-			int time = -1;
+			int time = Integer.MIN_VALUE;
 			for (Command cmd2 : decEndTimeCommand) {
 				if (cmd2.startTime > cmd1.endTime) {
 					if (time < cmd2.endTime) {
 						adjList.get(cmd2).add(cmd1);
 						time = Math.max(time, cmd2.startTime);
+						
 					} else
 						break;
 				}
@@ -94,6 +95,7 @@ public class CheckServer {
 				Command writer = trackWritesMap.get(cmd.value);
 				//System.out.println(cmd.value);
 				adjList.get(writer).add(cmd); // add data edge in the main adjacency list.
+
 			}
 		}
 	}
@@ -107,6 +109,7 @@ public class CheckServer {
 					if (cmd2.value.equals("kvget") && pathExist(cmd1, cmd2, adjList)) {
 						Command temp = trackWritesMap.get(cmd2.value);
 						adjList.get(cmd1).add(temp);
+						
 					}
 				}
 			}
@@ -122,15 +125,13 @@ public class CheckServer {
 
 		while (!que.isEmpty()) {
 			Command cmd = que.poll();
-			if (visited.contains(cmd))
-				return false;
-			
 			visited.add(cmd);
 			for (Command cmd3 : adjList.get(cmd)) {
-				if (cmd.equals(cmd2))
+				if (cmd3.equals(cmd2)) {
 					return true;
-				que.add(cmd3);
-				
+				}
+				if(!visited.contains(cmd3))
+					que.add(cmd3);	
 			}
 		}
 
@@ -148,8 +149,9 @@ public class CheckServer {
 
 	public static boolean dfs(Command target, Command node, Map<Command, ArrayList<Command>> adjList,
 			HashSet<Command> visited) {
-		if (visited.contains(node))
-			return true;
+		if (visited.contains(node)) {
+			return true; // Different cycle found.
+		}
 		visited.add(node);
 		for (Command next : adjList.get(node)) {
 			if (target.equals(next))
@@ -160,7 +162,7 @@ public class CheckServer {
 		return false;
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
 		
 		List<Command> list = Collections.synchronizedList(new ArrayList<>());
 		Map<Command, ArrayList<Command>> adjList = new HashMap<>();
@@ -187,17 +189,16 @@ public class CheckServer {
 		transport.close();
 		
 		// create 255 Thread using for loop
+		Thread[] clients = new Thread[20];
 		for (int x = 0; x < 20; x++) {
 			// Create Thread class and start accumulating logs in the list.
-			MyThread thread = new MyThread(list, "localhost", 5000, x + 1);
-			thread.start();
+			clients[x] = new MyThread(list, "localhost", 5000, x + 1);
+			clients[x].start();
 		}
-
-		try {
-			Thread.sleep(10000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+		for (int x = 0; x < 20; x++) {
+			clients[x].join();
 		}
+		
 		
 		System.out.println("Logs: " + list.size());
 
