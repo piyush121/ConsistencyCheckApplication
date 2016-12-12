@@ -200,7 +200,7 @@ public class CheckServer {
 		addHybridEdge(adjList, trackWritesMap, list);
 		
 		for(Command cmd : adjList.keySet())
-			System.out.println("Start Time: " + cmd.startTime +" End Time: "+cmd.endTime+" Value: "+cmd.value);
+			System.out.println("Start Time: " + cmd.startTime +" End Time: "+cmd.endTime+" Request Type: "+cmd.requestType+" Value: "+cmd.value);
 		
 		System.out.println("Detecting cycle");
 		if (containsCycle(adjList)) {
