@@ -54,6 +54,7 @@ public class CheckServer {
 		for (Command cmd : list) {
 			if (cmd.requestType.equals("kvset"))
 				trackWritesMap.put(cmd.value, cmd);
+			adjList.put(cmd, new ArrayList<>()); // add all vertex to the adjacency list!
 		}
 		// Sort by Increasing start time.
 		Collections.sort(list, new Comparator<Command>() {
