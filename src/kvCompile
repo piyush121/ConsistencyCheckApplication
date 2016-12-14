@@ -1,0 +1,5 @@
+#!/bin/bash
+
+javac -cp ".:./Referenced_Libraries/slf4j-simple-1.7.21.jar:./Referenced_Libraries/slf4j-api-1.7.21.jar:./Referenced_Libraries/libthrift-0.9.3.jar"  App/*.java
+
+echo "Compiled all files Successfully."
